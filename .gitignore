@@ -1,0 +1,14 @@
+.DS_Store
+.gradle
+local.properties
+*.iml
+*.iws
+.idea/
+!.idea/copyright
+!.idea/scopes
+out/
+gen/
+FWeather/src/main/res/values/api_keys.xml
+FWeather/src/main/res/values/analytics.xml
+license/node_modules/
+/build/
