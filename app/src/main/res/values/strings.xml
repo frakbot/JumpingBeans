@@ -2,8 +2,6 @@
 <resources>
 
     <string name="app_name">Jumping Beans</string>
-    <string name="hello_world">Hello world!</string>
-    <string name="action_settings">Settings</string>
-    <string name="message">Bouncing like a bawss...</string>
+    <string name="message">Bouncing like a bawss…</string>
 
 </resources>

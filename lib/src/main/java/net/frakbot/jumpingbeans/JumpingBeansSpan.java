@@ -5,23 +5,18 @@ import android.text.TextPaint;
 import android.text.style.SuperscriptSpan;
 import android.widget.TextView;
 
-public class JumpingBeansSpan extends SuperscriptSpan implements ValueAnimator.AnimatorUpdateListener {
-
-    private final static int POSITION_DELAY = 100;
-    public static final int DURATION = 1000;
+/*package*/ final class JumpingBeansSpan extends SuperscriptSpan implements ValueAnimator.AnimatorUpdateListener {
 
     private ValueAnimator jumpAnimator;
     private TextView textView;
     private int shift;
     private int delay;
+    private int loopDuration;
 
-    public JumpingBeansSpan(TextView textView, int position) {
+    public JumpingBeansSpan(TextView textView, int loopDuration,  int position, int waveCharOffset) {
         this.textView = textView;
-
-        if (position < 0) {
-            position = 0;
-        }
-        delay = POSITION_DELAY * position;
+        this.delay = waveCharOffset * position;
+        this.loopDuration = loopDuration;
     }
 
     @Override
@@ -44,7 +39,7 @@ public class JumpingBeansSpan extends SuperscriptSpan implements ValueAnimator.A
         shift = (int) tp.ascent() / 2;
         jumpAnimator = ValueAnimator.ofInt(0, shift, 0, 0);
         jumpAnimator
-            .setDuration(DURATION)
+            .setDuration(loopDuration)
             .setStartDelay(delay);
         jumpAnimator.setRepeatCount(ValueAnimator.INFINITE);
         jumpAnimator.setRepeatMode(ValueAnimator.RESTART);
@@ -65,10 +60,12 @@ public class JumpingBeansSpan extends SuperscriptSpan implements ValueAnimator.A
         }
     }
 
-    public void teardown() {
+    /*package*/ void teardown() {
         if (jumpAnimator != null) {
             jumpAnimator.cancel();
             jumpAnimator.removeAllListeners();
         }
+        shift = 0;
+        textView.invalidate();
     }
 }
