@@ -3,8 +3,8 @@ package net.frakbot.jumpingbeans.demo;
 import android.app.Activity;
 import android.os.Bundle;
 import android.widget.TextView;
-import net.frakbot.jumpingbeans.JumpingBeans;
 
+import net.frakbot.jumpingbeans.JumpingBeans;
 
 public class MainActivity extends Activity {
 
@@ -25,17 +25,17 @@ public class MainActivity extends Activity {
         // those instead)
         final TextView textView1 = (TextView) findViewById(R.id.jumping_text_1);
         jumpingBeans = new JumpingBeans.Builder()
-            .appendJumpingDots(textView1)
-            .build();
+                .appendJumpingDots(textView1)
+                .build();
 
         // Note that, even though we access textView2's text when starting to work on
         // the animation builder, we don't alter it in any way, so we're ok
         final TextView textView2 = (TextView) findViewById(R.id.jumping_text_2);
         jumpingBeans = new JumpingBeans.Builder()
-            .makeTextJump(textView2, 0, textView2.getText().toString().indexOf(' '))
-            .setIsWave(false)
-            .setLoopDuration(1000)
-            .build();
+                .makeTextJump(textView2, 0, textView2.getText().toString().indexOf(' '))
+                .setIsWave(false)
+                .setLoopDuration(1000)
+                .build();
     }
 
     @Override

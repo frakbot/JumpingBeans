@@ -48,8 +48,8 @@ import java.lang.ref.WeakReference;
         shift = (int) tp.ascent() / 2;
         jumpAnimator = ValueAnimator.ofInt(0, shift, 0);
         jumpAnimator
-            .setDuration(loopDuration)
-            .setStartDelay(delay);
+                .setDuration(loopDuration)
+                .setStartDelay(delay);
         jumpAnimator.setInterpolator(new JumpInterpolator(animatedRange));
         jumpAnimator.setRepeatCount(ValueAnimator.INFINITE);
         jumpAnimator.setRepeatMode(ValueAnimator.RESTART);
@@ -65,13 +65,11 @@ import java.lang.ref.WeakReference;
             if (isAttachedToHierarchy(v)) {
                 shift = (int) animation.getAnimatedValue();
                 v.invalidate();
-            }
-            else {
+            } else {
                 animation.setCurrentPlayTime(0);
                 animation.start();
             }
-        }
-        else {
+        } else {
             // The textview has been destroyed and teardown() hasn't been called
             teardown();
             if (BuildConfig.DEBUG) {
@@ -83,8 +81,7 @@ import java.lang.ref.WeakReference;
     private boolean isAttachedToHierarchy(View v) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             return v.isAttachedToWindow();
-        }
-        else {
+        } else {
             return v.getParent() != null;   // Best-effort fallback
         }
     }

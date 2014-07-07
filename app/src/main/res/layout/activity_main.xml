@@ -1,46 +1,45 @@
-<LinearLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:paddingLeft="@dimen/activity_horizontal_margin"
-        android:paddingRight="@dimen/activity_horizontal_margin"
-        android:paddingTop="@dimen/activity_vertical_margin"
-        android:paddingBottom="@dimen/activity_vertical_margin"
-        tools:context=".MainActivity">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:tools="http://schemas.android.com/tools"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent"
+  android:orientation="vertical"
+  android:paddingLeft="@dimen/activity_horizontal_margin"
+  android:paddingRight="@dimen/activity_horizontal_margin"
+  android:paddingTop="@dimen/activity_vertical_margin"
+  android:paddingBottom="@dimen/activity_vertical_margin"
+  tools:context=".MainActivity">
 
-    <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/label_1"
-            android:layout_marginBottom="8dp"
-            style="@android:style/TextAppearance.Holo.Large"/>
+  <TextView
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:text="@string/label_1"
+    android:layout_marginBottom="8dp"
+    style="@android:style/TextAppearance.Holo.Large" />
 
-    <TextView
-            android:id="@+id/jumping_text_1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/message"
-      android:layout_marginBottom="24dp"
-            style="@style/BiggerText"/>
+  <TextView
+    android:id="@+id/jumping_text_1"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:text="@string/message"
+    android:layout_marginBottom="24dp"
+    style="@style/BiggerText" />
 
-    <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/label_1"
-            style="@android:style/TextAppearance.Holo.Large"/>
+  <TextView
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:text="@string/label_1"
+    style="@android:style/TextAppearance.Holo.Large" />
 
-    <!-- This TextView has 8dp of top margin to avoid clipping the ascenders
-         of the first word when animating - also, the TextView above this doesn't
-         have any margin, to create the same spacing that we have between the
-         first couple of TextViews -->
-    <TextView
-            android:id="@+id/jumping_text_2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/message"
-            android:paddingTop="8dp"
-            style="@style/BiggerText"/>
+  <!-- This TextView has 8dp of top margin to avoid clipping the ascenders
+       of the first word when animating - also, the TextView above this doesn't
+       have any margin, to create the same spacing that we have between the
+       first couple of TextViews -->
+  <TextView
+    android:id="@+id/jumping_text_2"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:text="@string/message"
+    android:paddingTop="8dp"
+    style="@style/BiggerText" />
 
 </LinearLayout>

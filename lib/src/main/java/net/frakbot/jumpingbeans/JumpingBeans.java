@@ -106,7 +106,6 @@ public final class JumpingBeans {
          * resulting {@link net.frakbot.jumpingbeans.JumpingBeans}.
          *
          * @param textView The TextView to append the dots to
-         *
          * @see #setIsWave(boolean)
          */
         public Builder appendJumpingDots(TextView textView) {
@@ -152,7 +151,6 @@ public final class JumpingBeans {
          * @param startPos The position of the first character to animate
          * @param endPos   The position after the one the animated range ends at
          *                 (just like in String#substring())
-         *
          * @see #setIsWave(boolean)
          */
         public Builder makeTextJump(TextView textView, int startPos, int endPos) {
@@ -221,7 +219,6 @@ public final class JumpingBeans {
          *
          * @param waveCharOffset The start delay for the animation of every single
          *                       character over the previous one, in milliseconds
-         *
          * @see #setIsWave(boolean)
          */
         public Builder setWavePerCharDelay(int waveCharOffset) {
@@ -239,7 +236,6 @@ public final class JumpingBeans {
          *
          * @param wave If true, the animation is going to be a wave; if
          *             false, all characters will jump ay the same time
-         *
          * @see #setWavePerCharDelay(int)
          */
         public Builder setIsWave(boolean wave) {
@@ -261,10 +257,9 @@ public final class JumpingBeans {
             SpannableStringBuilder sbb = new SpannableStringBuilder(text);
             JumpingBeansSpan[] jumpingBeans;
             if (!wave) {
-                jumpingBeans = new JumpingBeansSpan[] {new JumpingBeansSpan(textView, loopDuration, 0, 0, animRange)};
+                jumpingBeans = new JumpingBeansSpan[]{new JumpingBeansSpan(textView, loopDuration, 0, 0, animRange)};
                 sbb.setSpan(jumpingBeans[0], startPos, endPos, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-            }
-            else {
+            } else {
                 if (waveCharDelay == -1) {
                     waveCharDelay = loopDuration / (3 * (endPos - startPos));
                 }
@@ -272,7 +267,7 @@ public final class JumpingBeans {
                 jumpingBeans = new JumpingBeansSpan[endPos - startPos];
                 for (int pos = startPos; pos < endPos; pos++) {
                     JumpingBeansSpan jumpingBean =
-                        new JumpingBeansSpan(textView, loopDuration, pos - startPos, waveCharDelay, animRange);
+                            new JumpingBeansSpan(textView, loopDuration, pos - startPos, waveCharDelay, animRange);
                     sbb.setSpan(jumpingBean, pos, pos + 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
                     jumpingBeans[pos - startPos] = jumpingBean;
                 }

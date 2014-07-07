@@ -1,12 +1,12 @@
 <resources>
 
-    <!-- Base application theme. -->
-    <style name="AppTheme" parent="android:Theme.Holo.Light.DarkActionBar">
-        <!-- Customize your theme here. -->
-    </style>
+  <!-- Base application theme. -->
+  <style name="AppTheme" parent="android:Theme.Holo.Light.DarkActionBar">
+    <!-- Customize your theme here. -->
+  </style>
 
-    <style name="BiggerText" parent="android:TextAppearance.Holo.Large">
-        <item name="android:textSize">32sp</item>
-    </style>
+  <style name="BiggerText" parent="android:TextAppearance.Holo.Large">
+    <item name="android:textSize">32sp</item>
+  </style>
 
 </resources>

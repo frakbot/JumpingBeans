@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">Jumping Beans</string>
-    <string name="message">Jumping like a bawss…</string>
-    <string name="label_1">Append Jumping Dots</string>
+  <string name="app_name">Jumping Beans</string>
+  <string name="message">Jumping like a bawss…</string>
+  <string name="label_1">Append Jumping Dots</string>
 
 </resources>
