@@ -8,7 +8,7 @@ import net.frakbot.jumpingbeans.JumpingBeans;
 
 public class MainActivity extends Activity {
 
-    private JumpingBeans jumpingBeans;
+    private JumpingBeans jumpingBeans1, jumpingBeans2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,14 +24,14 @@ public class MainActivity extends Activity {
         // them or, if it's an ellipsis character, replace it with three dots and animate
         // those instead)
         final TextView textView1 = (TextView) findViewById(R.id.jumping_text_1);
-        jumpingBeans = new JumpingBeans.Builder()
+        jumpingBeans1 = new JumpingBeans.Builder()
                 .appendJumpingDots(textView1)
                 .build();
 
         // Note that, even though we access textView2's text when starting to work on
         // the animation builder, we don't alter it in any way, so we're ok
         final TextView textView2 = (TextView) findViewById(R.id.jumping_text_2);
-        jumpingBeans = new JumpingBeans.Builder()
+        jumpingBeans2 = new JumpingBeans.Builder()
                 .makeTextJump(textView2, 0, textView2.getText().toString().indexOf(' '))
                 .setIsWave(false)
                 .setLoopDuration(1000)
@@ -39,8 +39,9 @@ public class MainActivity extends Activity {
     }
 
     @Override
-    protected void onStop() {
-        super.onStop();
-        jumpingBeans.stopJumping();
+    protected void onPause() {
+        super.onPause();
+        jumpingBeans1.stopJumping();
+        jumpingBeans2.stopJumping();
     }
 }

@@ -5,6 +5,8 @@ import android.text.Spanned;
 import android.text.TextUtils;
 import android.widget.TextView;
 
+import java.lang.ref.WeakReference;
+
 /**
  * Provides "jumping beans" functionality for a TextView.
  * <p/>
@@ -44,10 +46,12 @@ public final class JumpingBeans {
     public static final int DEFAULT_LOOP_DURATION = 1500;
 
     private JumpingBeansSpan[] jumpingBeans;
+    private WeakReference<TextView> textView;
 
-    private JumpingBeans(JumpingBeansSpan[] beans) {
+    private JumpingBeans(JumpingBeansSpan[] beans, TextView textView) {
         // Clients will have to use the builder
-        jumpingBeans = beans;
+        this.jumpingBeans = beans;
+        this.textView = new WeakReference<TextView>(textView);
     }
 
     /**
@@ -59,6 +63,27 @@ public final class JumpingBeans {
                 bean.teardown();
             }
         }
+
+        TextView tv = textView.get();
+        if (tv != null) {
+            CharSequence text = tv.getText();
+            if (text instanceof Spanned) {
+                CharSequence cleanText = removeJumpingBeansSpans((Spanned) text);
+                tv.setText(cleanText);
+            }
+        }
+    }
+
+    private static CharSequence removeJumpingBeansSpans(Spanned text) {
+        SpannableStringBuilder sbb = new SpannableStringBuilder(text.toString());
+        Object[] spans = text.getSpans(0, text.length(), Object.class);
+        for (Object span : spans) {
+            if (!(span instanceof JumpingBeansSpan)) {
+                sbb.setSpan(span, text.getSpanStart(span),
+                        text.getSpanEnd(span), text.getSpanFlags(span));
+            }
+        }
+        return sbb;
     }
 
     /**
@@ -274,7 +299,7 @@ public final class JumpingBeans {
             }
 
             textView.setText(sbb);
-            return new JumpingBeans(jumpingBeans);
+            return new JumpingBeans(jumpingBeans, textView);
         }
     }
 }
