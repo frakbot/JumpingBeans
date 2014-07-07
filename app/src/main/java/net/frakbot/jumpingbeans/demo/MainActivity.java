@@ -20,9 +20,21 @@ public class MainActivity extends Activity {
     protected void onResume() {
         super.onResume();
 
-        final TextView textView = (TextView) findViewById(R.id.jumping_text);
+        // Here you can see that we don't duplicate trailing dots on the text (we reuse
+        // them or, if it's an ellipsis character, replace it with three dots and animate
+        // those instead)
+        final TextView textView1 = (TextView) findViewById(R.id.jumping_text_1);
         jumpingBeans = new JumpingBeans.Builder()
-            .appendJumpingDots(textView)
+            .appendJumpingDots(textView1)
+            .build();
+
+        // Note that, even though we access textView2's text when starting to work on
+        // the animation builder, we don't alter it in any way, so we're ok
+        final TextView textView2 = (TextView) findViewById(R.id.jumping_text_2);
+        jumpingBeans = new JumpingBeans.Builder()
+            .makeTextJump(textView2, 0, textView2.getText().toString().indexOf(' '))
+            .setIsWave(false)
+            .setLoopDuration(1000)
             .build();
     }
 

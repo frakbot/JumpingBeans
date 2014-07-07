@@ -5,4 +5,8 @@
         <!-- Customize your theme here. -->
     </style>
 
+    <style name="BiggerText" parent="android:TextAppearance.Holo.Large">
+        <item name="android:textSize">32sp</item>
+    </style>
+
 </resources>

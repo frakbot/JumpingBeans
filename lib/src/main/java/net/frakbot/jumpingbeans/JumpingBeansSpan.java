@@ -94,6 +94,9 @@ import java.lang.ref.WeakReference;
             jumpAnimator.cancel();
             jumpAnimator.removeAllListeners();
         }
+        if (textView.get() != null) {
+            textView.clear();
+        }
     }
 
     /**

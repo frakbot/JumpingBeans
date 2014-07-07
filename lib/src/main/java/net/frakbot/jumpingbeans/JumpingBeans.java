@@ -41,7 +41,7 @@ public final class JumpingBeans {
     /**
      * The default duration of a whole jumping animation loop, in milliseconds.
      */
-    public static final int DEFAULT_LOOP_DURATION = 2000;
+    public static final int DEFAULT_LOOP_DURATION = 1500;
 
     private JumpingBeansSpan[] jumpingBeans;
 
