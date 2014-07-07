@@ -1,22 +1,31 @@
 package net.frakbot.jumpingbeans;
 
+import android.animation.TimeInterpolator;
 import android.animation.ValueAnimator;
+import android.os.Build;
 import android.text.TextPaint;
 import android.text.style.SuperscriptSpan;
+import android.util.Log;
+import android.view.View;
 import android.widget.TextView;
+
+import java.lang.ref.WeakReference;
 
 /*package*/ final class JumpingBeansSpan extends SuperscriptSpan implements ValueAnimator.AnimatorUpdateListener {
 
     private ValueAnimator jumpAnimator;
-    private TextView textView;
+    private WeakReference<TextView> textView;
     private int shift;
     private int delay;
     private int loopDuration;
+    private float animatedRange;
 
-    public JumpingBeansSpan(TextView textView, int loopDuration,  int position, int waveCharOffset) {
-        this.textView = textView;
+    public JumpingBeansSpan(TextView textView, int loopDuration, int position, int waveCharOffset,
+                            float animatedRange) {
+        this.textView = new WeakReference<>(textView);
         this.delay = waveCharOffset * position;
         this.loopDuration = loopDuration;
+        this.animatedRange = animatedRange;
     }
 
     @Override
@@ -37,10 +46,11 @@ import android.widget.TextView;
         }
 
         shift = (int) tp.ascent() / 2;
-        jumpAnimator = ValueAnimator.ofInt(0, shift, 0, 0);
+        jumpAnimator = ValueAnimator.ofInt(0, shift, 0);
         jumpAnimator
             .setDuration(loopDuration)
             .setStartDelay(delay);
+        jumpAnimator.setInterpolator(new JumpInterpolator(animatedRange));
         jumpAnimator.setRepeatCount(ValueAnimator.INFINITE);
         jumpAnimator.setRepeatMode(ValueAnimator.RESTART);
         jumpAnimator.addUpdateListener(this);
@@ -50,13 +60,32 @@ import android.widget.TextView;
     @Override
     public void onAnimationUpdate(ValueAnimator animation) {
         // No need for synchronization as this always run on main thread anyway
-        if (textView.getParent() != null) {
-            shift = (int) animation.getAnimatedValue();
-            textView.invalidate();
+        TextView v = textView.get();
+        if (v != null) {
+            if (isAttachedToHierarchy(v)) {
+                shift = (int) animation.getAnimatedValue();
+                v.invalidate();
+            }
+            else {
+                animation.setCurrentPlayTime(0);
+                animation.start();
+            }
         }
         else {
-            animation.setCurrentPlayTime(0);
-            animation.start();
+            // The textview has been destroyed and teardown() hasn't been called
+            teardown();
+            if (BuildConfig.DEBUG) {
+                Log.e("JumpingBeans", "!!! Remember to call JumpingBeans.stopJumping() when appropriate !!!");
+            }
+        }
+    }
+
+    private boolean isAttachedToHierarchy(View v) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            return v.isAttachedToWindow();
+        }
+        else {
+            return v.getParent() != null;   // Best-effort fallback
         }
     }
 
@@ -65,7 +94,30 @@ import android.widget.TextView;
             jumpAnimator.cancel();
             jumpAnimator.removeAllListeners();
         }
-        shift = 0;
-        textView.invalidate();
+    }
+
+    /**
+     * A tweaked {@link android.view.animation.AccelerateDecelerateInterpolator}
+     * that covers the full range in a fraction of its input range, and holds on
+     * the final value on the rest of the input range. By default, this fraction
+     * is half of the full range.
+     *
+     * @see net.frakbot.jumpingbeans.JumpingBeans#DEFAULT_ANIMATION_DUTY_CYCLE
+     */
+    private class JumpInterpolator implements TimeInterpolator {
+
+        private float animRange;
+
+        public JumpInterpolator(float animatedRange) {
+            animRange = Math.abs(animatedRange);
+        }
+
+        @Override
+        public float getInterpolation(float input) {
+            if (input <= animRange) {
+                return (float) (Math.cos((input / animRange + 1) * Math.PI) / 2f) + 0.5f;
+            }
+            return 1.0f;
+        }
     }
 }

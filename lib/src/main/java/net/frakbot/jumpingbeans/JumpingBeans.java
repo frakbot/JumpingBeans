@@ -13,11 +13,35 @@ import android.widget.TextView;
  * the view tree, you hide it, or the parent Activity/Fragment goes in
  * the paused status). This will allow to release the animations and
  * free up memory and CPU that would be otherwise wasted.
+ * <p/>
+ * Please note that you:
+ * <ul>
+ * <li><b>Must not</b> try to change a jumping beans text in a textview before calling
+ * {@link #stopJumping()} as to avoid unnecessary invalidation calls;
+ * the JumpingBeans class cannot know when this happens and will keep
+ * animating the textview (well, try to, anyway), wasting resources</li>
+ * <li><b>Must not</b> try to use a jumping beans text in another view; it will not
+ * animate. Just create another jumping beans animation for each new
+ * view</li>
+ * <li><b>Should not</b> use JumpingBeans on large chunks of text. Ideally this should
+ * be done on small views with just a few words. We've strived to make it as inexpensive
+ * as possible to use JumpingBeans but invalidating and possibly relayouting a large
+ * TextView can be pretty expensive.</li>
+ * </ul>
  */
 public final class JumpingBeans {
 
-    public static final int DEFAULT_LOOP_DURATION = 1000;
-    public static final int DEFAULT_WAVE_CHAR_DELAY = 100;
+    /**
+     * The default fraction of the whole animation time spent actually animating.
+     * The rest of the range will be spent in "resting" state.
+     * This the "duty cycle" of the jumping animation.
+     */
+    public static final float DEFAULT_ANIMATION_DUTY_CYCLE = 0.5f;
+
+    /**
+     * The default duration of a whole jumping animation loop, in milliseconds.
+     */
+    public static final int DEFAULT_LOOP_DURATION = 2000;
 
     private JumpingBeansSpan[] jumpingBeans;
 
@@ -57,8 +81,9 @@ public final class JumpingBeans {
     public static class Builder {
 
         private int startPos, endPos;
+        private float animRange = DEFAULT_ANIMATION_DUTY_CYCLE;
         private int loopDuration = DEFAULT_LOOP_DURATION;
-        private int waveCharOffset = DEFAULT_WAVE_CHAR_DELAY;
+        private int waveCharDelay = -1;
         private CharSequence text;
         private TextView textView;
         private boolean wave;
@@ -156,22 +181,41 @@ public final class JumpingBeans {
         }
 
         /**
+         * Sets the fraction of the animation loop time spent actually animating.
+         * The rest of the time will be spent "resting".
+         * The default value is
+         * {@link net.frakbot.jumpingbeans.JumpingBeans#DEFAULT_ANIMATION_DUTY_CYCLE}.
+         *
+         * @param animatedRange The fraction of the animation loop time spent
+         *                      actually animating the characters
+         */
+        public Builder setAnimatedDutyCycle(float animatedRange) {
+            if (animatedRange <= 0f || animatedRange > 1f) {
+                throw new IllegalArgumentException("The animated range must be in the (0, 1] range");
+            }
+            this.animRange = animatedRange;
+            return this;
+        }
+
+        /**
          * Sets the jumping loop duration. The default value is
          * {@link net.frakbot.jumpingbeans.JumpingBeans#DEFAULT_LOOP_DURATION}.
          *
          * @param loopDuration The jumping animation loop duration, in milliseconds
          */
-        public void setLoopDuration(int loopDuration) {
+        public Builder setLoopDuration(int loopDuration) {
             if (loopDuration < 1) {
                 throw new IllegalArgumentException("The loop duration must be bigger than zero");
             }
             this.loopDuration = loopDuration;
+            return this;
         }
 
         /**
          * Sets the delay for starting the animation of every single dot over the
          * start of the previous one, in milliseconds. The default value is
-         * {@link net.frakbot.jumpingbeans.JumpingBeans#DEFAULT_WAVE_CHAR_DELAY}.
+         * the loop length divided by three times the number of character animated
+         * by this instance of JumpingBeans.
          * <p/>
          * Only has a meaning when the animation is a wave.
          *
@@ -180,11 +224,12 @@ public final class JumpingBeans {
          *
          * @see #setIsWave(boolean)
          */
-        public void setWaveCharOffset(int waveCharOffset) {
+        public Builder setWavePerCharDelay(int waveCharOffset) {
             if (waveCharOffset < 0) {
                 throw new IllegalArgumentException("The wave char offset must be non-negative");
             }
-            this.waveCharOffset = waveCharOffset;
+            this.waveCharDelay = waveCharOffset;
+            return this;
         }
 
         /**
@@ -195,10 +240,11 @@ public final class JumpingBeans {
          * @param wave If true, the animation is going to be a wave; if
          *             false, all characters will jump ay the same time
          *
-         * @see #setWaveCharOffset(int)
+         * @see #setWavePerCharDelay(int)
          */
-        public void setIsWave(boolean wave) {
+        public Builder setIsWave(boolean wave) {
             this.wave = wave;
+            return this;
         }
 
         /**
@@ -215,14 +261,18 @@ public final class JumpingBeans {
             SpannableStringBuilder sbb = new SpannableStringBuilder(text);
             JumpingBeansSpan[] jumpingBeans;
             if (!wave) {
-                jumpingBeans = new JumpingBeansSpan[] {new JumpingBeansSpan(textView, loopDuration, 0, 0)};
+                jumpingBeans = new JumpingBeansSpan[] {new JumpingBeansSpan(textView, loopDuration, 0, 0, animRange)};
                 sbb.setSpan(jumpingBeans[0], startPos, endPos, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
             }
             else {
+                if (waveCharDelay == -1) {
+                    waveCharDelay = loopDuration / (3 * (endPos - startPos));
+                }
+
                 jumpingBeans = new JumpingBeansSpan[endPos - startPos];
                 for (int pos = startPos; pos < endPos; pos++) {
                     JumpingBeansSpan jumpingBean =
-                        new JumpingBeansSpan(textView, loopDuration, pos - startPos, waveCharOffset);
+                        new JumpingBeansSpan(textView, loopDuration, pos - startPos, waveCharDelay, animRange);
                     sbb.setSpan(jumpingBean, pos, pos + 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
                     jumpingBeans[pos - startPos] = jumpingBean;
                 }

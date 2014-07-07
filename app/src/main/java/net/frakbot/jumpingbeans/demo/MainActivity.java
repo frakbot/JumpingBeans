@@ -24,8 +24,6 @@ public class MainActivity extends Activity {
         jumpingBeans = new JumpingBeans.Builder()
             .appendJumpingDots(textView)
             .build();
-
-
     }
 
     @Override
