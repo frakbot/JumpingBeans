@@ -25,6 +25,10 @@ import java.lang.ref.WeakReference;
  * <li><b>Must not</b> try to use a jumping beans text in another view; it will not
  * animate. Just create another jumping beans animation for each new
  * view</li>
+ * <li><b>Must not</b> use more than one JumpingBeans instance on a single TextView, as
+ * the first cleanup operation called on any of these JumpingBeans will also cleanup
+ * all other JumpingBeans' stuff. This is most likely not what you want to happen in
+ * some cases.</li>
  * <li><b>Should not</b> use JumpingBeans on large chunks of text. Ideally this should
  * be done on small views with just a few words. We've strived to make it as inexpensive
  * as possible to use JumpingBeans but invalidating and possibly relayouting a large
