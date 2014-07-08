@@ -1,14 +1,37 @@
-.DS_Store
-.gradle
-local.properties
-*.iml
-*.iws
-.idea/
-!.idea/copyright
-!.idea/scopes
-out/
+# built application files
+*.apk
+*.ap_
+
+# files for the dex VM
+*.dex
+
+# Java class files
+*.class
+
+# generated files
+bin/
 gen/
-FWeather/src/main/res/values/api_keys.xml
-FWeather/src/main/res/values/analytics.xml
-license/node_modules/
-/build/
+out/
+build/
+.gradle/
+
+# Project files
+*.iml
+.idea
+# .idea/workspace.xml
+
+# Local configuration file (sdk path, etc)
+local.properties
+keystore.properties
+
+# Configuration files
+Config.java
+
+# Windows thumbnail db
+.DS_Store
+
+# Idea non-crucial project fileS
+*.iws
+
+# Sandbox stuff
+_sandbox
