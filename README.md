@@ -3,7 +3,7 @@ JumpingBeans
 
 The **JumpingBeans** make your test jump to the eye. Literally!
 
-### What are the JumpingBeans
+## What are the JumpingBeans
 Have you ever used Hangouts? If not, do it and then come back here. Go. Go, I said!
 
 Good. With that under our belt, we can be confident you've seen at least once those fancy,
@@ -14,30 +14,30 @@ Well, since there's no official naming for them, and since they remind me of the
 Mexican beans, the name for a library that emulates their behaviour has come to be exactly
 that: **JumpingBeans**.
 
-### See them in action
+## See them in action
 Please come closer, ladies and gentlemen! Here you have, for your own amusement, the
 amazing JumpingBeans:
 
 [IMAGE 1]       [IMAGE 2]
 (insert Gifs here)
 
-### What you can do
+## What you can do
 The library supports two main operation modes: **appending three jumping dots**,
 Hangouts-style, or making any arbitrary subsection of a CharSequence jump, either as a
 wave or as a single block.
 
-#### Append jumping dots
+### Append jumping dots
 This method takes the trailing `...` (or appends them, if the given TextView's text
 doesn't end in three dots), and makes them jump like it was -the 70s- Hangouts.
 
 The defaults emulate the Hangouts L&F as closely as possible, but you can easily change
 the animation properties to suit your needs.
 
-#### Make text jumping
+### Make text jumping
 This method takes the specified subsection a the TextView text and animates it as to
 make it jump.
 
-### Usage
+## Usage
 Just create a `JumpingBeans` by using its `Builder` and call the method you want:
 
 ```java
@@ -54,7 +54,7 @@ jumpingBeans2 = new JumpingBeans.Builder()
         .build();
 ```
 
-#### Customising the jumpin' beans
+### Customising the jumpin' beans
 Just act on the `Builder`. Don't want the dots to jump in a wave? Call 
 `setIsWave(false)`. Don't like the default loop duration? `setLoopDuration(int)`
 is here to help. Fancy different per-char delays in waves? Well, ya know that
@@ -62,7 +62,7 @@ is here to help. Fancy different per-char delays in waves? Well, ya know that
 shorter pause between jumping cycles? BAM, `setAnimatedDutyCycle(float)` and
 you're all set.
 
-#### Being a responsible citizen
+### Being a responsible citizen
 Since Spans were not really designed to be animated, there's some trickery
 going on behind the scenes to make this happen. You needn't be concerned with it,
 but **make sure you call the `stopJumping()` method** on your `JumpingBeans` object
@@ -72,7 +72,7 @@ container Activity or Fragment is going in paused state, ...).
 This allows a deeper cleanup than what the `JumpingBeans` library is trying to
 perform if you forget to. **Don't leave stuff lying around if you can!**
 
-#### Also, a few caveats
+## Also, a few caveats
 Please note that you:
 
  * **Must not** try to change a jumping beans text in a textview before calling
@@ -89,10 +89,17 @@ Please note that you:
  * **Should not** use JumpingBeans on large chunks of text. Ideally this should
    be done on small views with just a few words. We've strived to make it as inexpensive
    as possible to use JumpingBeans but invalidating and possibly relayouting a large
-   TextView can be pretty expensive.
+   TextView can be pretty expensive. 
    
-### License
+## Demo app
+You can find the `JumpingBeans` demo app on the [Google Play Store][1].
+
+[![JumpingBeans Demo on Google Play Store](http://developer.android.com/images/brand/en_generic_rgb_wo_60.png)][1]
+   
+## License
 This library was written by **Sebastiano Poggi** and released by Frakbot under the
 Apache 2.0 License. 
 
 Please see the [NOTICE](/NOTICE) file for details.
+
+[1]: http://play.google.com/store/apps/details?id=net.frakbot.jumpingbeans.demo
