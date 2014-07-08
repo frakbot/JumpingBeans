@@ -43,7 +43,7 @@
   <TextView
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:text="@string/label_1"
+    android:text="@string/label_2"
     style="@android:style/TextAppearance.Holo.Large" />
 
   <!-- This TextView has 8dp of top margin to avoid clipping the ascenders

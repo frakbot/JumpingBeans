@@ -20,5 +20,6 @@
   <string name="app_name">Jumping Beans</string>
   <string name="message">Jumping like a bawss…</string>
   <string name="label_1">Append Jumping Dots</string>
+  <string name="label_2">Make first word jump</string>
 
 </resources>

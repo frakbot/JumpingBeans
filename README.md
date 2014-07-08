@@ -18,8 +18,9 @@ that: **JumpingBeans**.
 Please come closer, ladies and gentlemen! Here you have, for your own amusement, the
 amazing JumpingBeans:
 
-[IMAGE 1]       [IMAGE 2]
-(insert Gifs here)
+![Jumping dots](art/jumpingdots.gif)
+
+![Animated first word](art/jumpingword.gif)
 
 ## What you can do
 The library supports two main operation modes: **appending three jumping dots**,
