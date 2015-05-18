@@ -19,6 +19,7 @@ package net.frakbot.jumpingbeans;
 import android.animation.TimeInterpolator;
 import android.animation.ValueAnimator;
 import android.os.Build;
+import android.support.annotation.NonNull;
 import android.text.TextPaint;
 import android.text.style.SuperscriptSpan;
 import android.util.Log;
@@ -36,7 +37,7 @@ import java.lang.ref.WeakReference;
     private int shift;
     private ValueAnimator jumpAnimator;
 
-    public JumpingBeansSpan(TextView textView, int loopDuration, int position, int waveCharOffset,
+    public JumpingBeansSpan(@NonNull TextView textView, int loopDuration, int position, int waveCharOffset,
                             float animatedRange) {
         this.textView = new WeakReference<>(textView);
         this.delay = waveCharOffset * position;
@@ -45,18 +46,18 @@ import java.lang.ref.WeakReference;
     }
 
     @Override
-    public void updateMeasureState(TextPaint tp) {
+    public void updateMeasureState(@NonNull TextPaint tp) {
         initIfNecessary(tp);
         tp.baselineShift = shift;
     }
 
     @Override
-    public void updateDrawState(TextPaint tp) {
+    public void updateDrawState(@NonNull TextPaint tp) {
         initIfNecessary(tp);
         tp.baselineShift = shift;
     }
 
-    private void initIfNecessary(TextPaint tp) {
+    private void initIfNecessary(@NonNull TextPaint tp) {
         if (jumpAnimator != null) {
             return;
         }
@@ -94,7 +95,7 @@ import java.lang.ref.WeakReference;
         }
     }
 
-    private boolean isAttachedToHierarchy(View v) {
+    private static boolean isAttachedToHierarchy(View v) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             return v.isAttachedToWindow();
         }
@@ -119,7 +120,7 @@ import java.lang.ref.WeakReference;
      *
      * @see net.frakbot.jumpingbeans.JumpingBeans#DEFAULT_ANIMATION_DUTY_CYCLE
      */
-    private class JumpInterpolator implements TimeInterpolator {
+    private static class JumpInterpolator implements TimeInterpolator {
 
         private final float animRange;
 
