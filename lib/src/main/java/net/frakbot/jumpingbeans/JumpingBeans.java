@@ -16,6 +16,7 @@
 
 package net.frakbot.jumpingbeans;
 
+import android.support.annotation.NonNull;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.TextUtils;
@@ -63,12 +64,12 @@ public final class JumpingBeans {
     /**
      * The default duration of a whole jumping animation loop, in milliseconds.
      */
-    public static final int DEFAULT_LOOP_DURATION = 1500;
+    public static final int DEFAULT_LOOP_DURATION = 1500;   // ms
 
     private final JumpingBeansSpan[] jumpingBeans;
     private final WeakReference<TextView> textView;
 
-    private JumpingBeans(JumpingBeansSpan[] beans, TextView textView) {
+    private JumpingBeans(@NonNull JumpingBeansSpan[] beans, @NonNull TextView textView) {
         // Clients will have to use the builder
         this.jumpingBeans = beans;
         this.textView = new WeakReference<>(textView);
@@ -118,9 +119,9 @@ public final class JumpingBeans {
      * <p/>
      * <pre class="prettyprint">
      * JumpingBeans jumpingBeans = new JumpingBeans.Builder()
-     * .appendJumpingDots(myTextView)
-     * .setLoopDuration(1500)
-     * .build();
+     *     .appendJumpingDots(myTextView)
+     *     .setLoopDuration(1500)
+     *     .build();
      * </pre>
      */
     public static class Builder {
@@ -153,7 +154,7 @@ public final class JumpingBeans {
          * @param textView The TextView to append the dots to
          * @see #setIsWave(boolean)
          */
-        public Builder appendJumpingDots(TextView textView) {
+        public Builder appendJumpingDots(@NonNull TextView textView) {
             if (textView == null) {
                 throw new NullPointerException("The textView must not be null");
             }
@@ -198,7 +199,7 @@ public final class JumpingBeans {
          *                 (just like in String#substring())
          * @see #setIsWave(boolean)
          */
-        public Builder makeTextJump(TextView textView, int startPos, int endPos) {
+        public Builder makeTextJump(@NonNull TextView textView, int startPos, int endPos) {
             if (textView == null || textView.getText() == null) {
                 throw new NullPointerException("The textView and its text must not be null");
             }
