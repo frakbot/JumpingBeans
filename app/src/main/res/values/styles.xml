@@ -17,11 +17,11 @@
 <resources>
 
   <!-- Base application theme. -->
-  <style name="AppTheme" parent="android:Theme.Holo.Light.DarkActionBar">
+  <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
     <!-- Customize your theme here. -->
   </style>
 
-  <style name="BiggerText" parent="android:TextAppearance.Holo.Large">
+  <style name="BiggerText" parent="TextAppearance.AppCompat.Large">
     <item name="android:textSize">32sp</item>
   </style>
 
