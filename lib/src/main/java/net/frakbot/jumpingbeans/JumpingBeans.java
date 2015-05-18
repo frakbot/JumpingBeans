@@ -65,13 +65,13 @@ public final class JumpingBeans {
      */
     public static final int DEFAULT_LOOP_DURATION = 1500;
 
-    private JumpingBeansSpan[] jumpingBeans;
-    private WeakReference<TextView> textView;
+    private final JumpingBeansSpan[] jumpingBeans;
+    private final WeakReference<TextView> textView;
 
     private JumpingBeans(JumpingBeansSpan[] beans, TextView textView) {
         // Clients will have to use the builder
         this.jumpingBeans = beans;
-        this.textView = new WeakReference<TextView>(textView);
+        this.textView = new WeakReference<>(textView);
     }
 
     /**
@@ -159,7 +159,7 @@ public final class JumpingBeans {
             }
 
             CharSequence text = !TextUtils.isEmpty(textView.getText()) ? textView.getText() : "";
-            if (text.length() > 0 && text.subSequence(text.length() - 1, text.length()).equals("…")) {
+            if (text.length() > 0 && "…".equals(text.subSequence(text.length() - 1, text.length()))) {
                 text = text.subSequence(0, text.length() - 1);
             }
 
@@ -301,10 +301,7 @@ public final class JumpingBeans {
         public JumpingBeans build() {
             SpannableStringBuilder sbb = new SpannableStringBuilder(text);
             JumpingBeansSpan[] jumpingBeans;
-            if (!wave) {
-                jumpingBeans = new JumpingBeansSpan[]{new JumpingBeansSpan(textView, loopDuration, 0, 0, animRange)};
-                sbb.setSpan(jumpingBeans[0], startPos, endPos, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-            } else {
+            if (wave) {
                 if (waveCharDelay == -1) {
                     waveCharDelay = loopDuration / (3 * (endPos - startPos));
                 }
@@ -316,10 +313,15 @@ public final class JumpingBeans {
                     sbb.setSpan(jumpingBean, pos, pos + 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
                     jumpingBeans[pos - startPos] = jumpingBean;
                 }
+            } else {
+                jumpingBeans = new JumpingBeansSpan[]{new JumpingBeansSpan(textView, loopDuration, 0, 0, animRange)};
+                sbb.setSpan(jumpingBeans[0], startPos, endPos, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
             }
 
             textView.setText(sbb);
             return new JumpingBeans(jumpingBeans, textView);
         }
+
     }
+
 }
