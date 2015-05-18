@@ -155,10 +155,6 @@ public final class JumpingBeans {
          * @see #setIsWave(boolean)
          */
         public Builder appendJumpingDots(@NonNull TextView textView) {
-            if (textView == null) {
-                throw new NullPointerException("The textView must not be null");
-            }
-
             CharSequence text = !TextUtils.isEmpty(textView.getText()) ? textView.getText() : "";
             if (text.length() > 0 && "…".equals(text.subSequence(text.length() - 1, text.length()))) {
                 text = text.subSequence(0, text.length() - 1);
@@ -200,8 +196,8 @@ public final class JumpingBeans {
          * @see #setIsWave(boolean)
          */
         public Builder makeTextJump(@NonNull TextView textView, int startPos, int endPos) {
-            if (textView == null || textView.getText() == null) {
-                throw new NullPointerException("The textView and its text must not be null");
+            if (textView.getText() == null) {
+                throw new NullPointerException("The textView text must not be null");
             }
 
             if (endPos < startPos) {
