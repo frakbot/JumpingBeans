@@ -46,14 +46,16 @@ Just create a `JumpingBeans` by using its `Builder` and call the method you want
 ```java
 // Append jumping dots
 final TextView textView1 = (TextView) findViewById(R.id.jumping_text_1);
-jumpingBeans1 = new JumpingBeans.Builder()
-        .appendJumpingDots(textView1)
+jumpingBeans1 = JumpingBeans.with(textView1)
+        .appendJumpingDots()
         .build();
         
 // Make the first word's letters jump
 final TextView textView2 = (TextView) findViewById(R.id.jumping_text_2);
-jumpingBeans2 = new JumpingBeans.Builder()
-        .makeTextJump(textView2, 0, textView2.getText().toString().indexOf(' '))
+jumpingBeans2 = JumpingBeans.with(textView2)
+        .makeTextJump(0, textView2.getText().toString().indexOf(' '))
+        .setIsWave(false)
+        .setLoopDuration(1000)  // ms
         .build();
 ```
 
