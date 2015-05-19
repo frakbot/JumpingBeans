@@ -24,6 +24,29 @@ amazing JumpingBeans:
 
 ![Animated first word](art/jumpingword.gif)
 
+## Make your project jump around
+In order to use JumpingBeans in your own project, you can use the wonderous remote dependencies capabilities
+that Gradle offers you (if you're not using Gradle and Android Studio/IntelliJ offer you, I'm sorry for you.)
+(No, I mean it, I'm really sorry for you!)
+
+Just make sure you have `jcenter()` in your root `build.gradle`:
+
+```groovy
+allprojects {
+    repositories {
+        jcenter()
+    }
+}
+```
+
+And then just add the JumpingBeans dependency to your module's `build.gradle`:
+
+```groovy
+dependencies {
+    compile 'net.frakbot:jumpingbeans:1.2.0'
+}
+```
+
 ## What you can do
 The library supports two main operation modes: **appending three jumping dots**,
 Hangouts-style, or making any arbitrary subsection of a CharSequence jump, either as a
