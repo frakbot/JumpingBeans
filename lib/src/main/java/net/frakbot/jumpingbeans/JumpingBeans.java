@@ -136,6 +136,10 @@ public final class JumpingBeans {
      */
     public static class Builder {
 
+        public static final String ELLIPSIS_GLYPH = "…";
+        public static final String THREE_DOTS_ELLIPSIS = "...";
+        public static final int THREE_DOTS_ELLIPSIS_LENGTH = 3;
+
         private int startPos, endPos;
         private float animRange = DEFAULT_ANIMATION_DUTY_CYCLE;
         private int loopDuration = DEFAULT_LOOP_DURATION;
@@ -168,20 +172,36 @@ public final class JumpingBeans {
          * @see #setIsWave(boolean)
          */
         public Builder appendJumpingDots() {
-            CharSequence text = !TextUtils.isEmpty(textView.getText()) ? textView.getText() : "";
-            if (text.length() > 0 && "…".equals(text.subSequence(text.length() - 1, text.length()))) {
+            CharSequence text = getTextSafe(textView);
+            if (text.length() > 0 && endsWithEllipsisGlyph(text)) {
                 text = text.subSequence(0, text.length() - 1);
             }
 
-            if (text.length() < 3 || !TextUtils.equals(text.subSequence(text.length() - 3, text.length()), "...")) {
-                text = new SpannableStringBuilder(text).append("...");  // Preserve spans in original text
+            if (!endsWithThreeEllipsisDots(text)) {
+                text = new SpannableStringBuilder(text).append(THREE_DOTS_ELLIPSIS);  // Preserve spans in original text
             }
 
             this.text = text;
             this.wave = true;
-            this.startPos = this.text.length() - 3;
-            this.endPos = this.text.length();
+            this.startPos = text.length() - THREE_DOTS_ELLIPSIS_LENGTH;
+            this.endPos = text.length();
             return this;
+        }
+
+        private static CharSequence getTextSafe(TextView textView) {
+            return !TextUtils.isEmpty(textView.getText()) ? textView.getText() : "";
+        }
+
+        private static boolean endsWithEllipsisGlyph(CharSequence text) {
+            return TextUtils.equals(text.subSequence(text.length() - 1, text.length()), ELLIPSIS_GLYPH);
+        }
+
+        private static boolean endsWithThreeEllipsisDots(@NonNull CharSequence text) {
+            if (text.length() < THREE_DOTS_ELLIPSIS_LENGTH) {
+                // TODO we should try to normalize "invalid" ellipsis (e.g., ".." or "....")
+                return false;
+            }
+            return TextUtils.equals(text.subSequence(text.length() - THREE_DOTS_ELLIPSIS_LENGTH, text.length()), THREE_DOTS_ELLIPSIS);
         }
 
         /**
