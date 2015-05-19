@@ -1,7 +1,7 @@
 JumpingBeans
 ============
 
-![JumpingBeans icon](app/src/main/res/drawable-xxhdpi/ic_launcher.png)
+![JumpingBeans icon](app/src/main/res/mipmap-xxhdpi/ic_launcher.png)
 
 The **JumpingBeans** make your test jump to the eye. Literally!
 
