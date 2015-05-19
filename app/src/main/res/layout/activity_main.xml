@@ -30,7 +30,7 @@
     android:layout_height="wrap_content"
     android:text="@string/label_1"
     android:layout_marginBottom="8dp"
-    style="@android:style/TextAppearance.Holo.Large" />
+    android:textAppearance="@style/TextAppearance.AppCompat.Display1" />
 
   <TextView
     android:id="@+id/jumping_text_1"
@@ -38,24 +38,24 @@
     android:layout_height="wrap_content"
     android:text="@string/message"
     android:layout_marginBottom="24dp"
-    style="@style/BiggerText" />
+    android:textAppearance="@style/TextAppearance.DemoText" />
 
   <TextView
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:text="@string/label_2"
-    style="@android:style/TextAppearance.Holo.Large" />
+    android:textAppearance="@style/TextAppearance.AppCompat.Display1" />
 
-  <!-- This TextView has 8dp of top margin to avoid clipping the ascenders
+  <!-- This TextView has 8dp of top padding to avoid clipping the ascenders
        of the first word when animating - also, the TextView above this doesn't
        have any margin, to create the same spacing that we have between the
-       first couple of TextViews -->
+       first couple of TextViews. -->
   <TextView
     android:id="@+id/jumping_text_2"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:text="@string/message"
     android:paddingTop="8dp"
-    style="@style/BiggerText" />
+    android:textAppearance="@style/TextAppearance.DemoText" />
 
 </LinearLayout>

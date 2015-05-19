@@ -16,13 +16,13 @@
 
 package net.frakbot.jumpingbeans.demo;
 
-import android.app.Activity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.widget.TextView;
 
 import net.frakbot.jumpingbeans.JumpingBeans;
 
-public class MainActivity extends Activity {
+public class MainActivity extends AppCompatActivity {
 
     private JumpingBeans jumpingBeans1, jumpingBeans2;
 
@@ -60,4 +60,5 @@ public class MainActivity extends Activity {
         jumpingBeans1.stopJumping();
         jumpingBeans2.stopJumping();
     }
+
 }
