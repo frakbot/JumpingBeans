@@ -128,7 +128,7 @@ public final class JumpingBeans {
      * <p>Example:
      * <p/>
      * <pre class="prettyprint">
-     * JumpingBeans jumpingBeans = new JumpingBeans.Builder(myTextView)
+     * JumpingBeans jumpingBeans = JumpingBeans.with(myTextView)
      *     .appendJumpingDots()
      *     .setLoopDuration(1500)
      *     .build();
