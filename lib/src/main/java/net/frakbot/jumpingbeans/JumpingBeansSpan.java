@@ -47,23 +47,24 @@ import java.lang.ref.WeakReference;
 
     @Override
     public void updateMeasureState(@NonNull TextPaint tp) {
-        initIfNecessary(tp);
+        initIfNecessary(tp.ascent());
         tp.baselineShift = shift;
     }
 
     @Override
     public void updateDrawState(@NonNull TextPaint tp) {
-        initIfNecessary(tp);
+        initIfNecessary(tp.ascent());
         tp.baselineShift = shift;
     }
 
-    private void initIfNecessary(@NonNull TextPaint tp) {
+    private void initIfNecessary(float ascent) {
         if (jumpAnimator != null) {
             return;
         }
 
-        shift = (int) tp.ascent() / 2;
-        jumpAnimator = ValueAnimator.ofInt(0, shift);
+        this.shift = 0;
+        int maxShift = (int) ascent / 2;
+        jumpAnimator = ValueAnimator.ofInt(0, maxShift);
         jumpAnimator
                 .setDuration(loopDuration)
                 .setStartDelay(delay);
@@ -79,19 +80,16 @@ import java.lang.ref.WeakReference;
         // No need for synchronization as this always run on main thread anyway
         TextView v = textView.get();
         if (v != null) {
-            if (isAttachedToHierarchy(v)) {
-                shift = (int) animation.getAnimatedValue();
-                v.invalidate();
-            } else {
-                animation.setCurrentPlayTime(0);
-                animation.start();
-            }
+            updateAnimationFor(animation, v);
         } else {
-            // The textview has been destroyed and teardown() hasn't been called
-            teardown();
-            if (BuildConfig.DEBUG) {
-                Log.e("JumpingBeans", "!!! Remember to call JumpingBeans.stopJumping() when appropriate !!!");
-            }
+            cleanupAndComplainAboutUserBeingAFool();
+        }
+    }
+
+    private void updateAnimationFor(@NonNull ValueAnimator animation, @NonNull TextView v) {
+        if (isAttachedToHierarchy(v)) {
+            shift = (int) animation.getAnimatedValue();
+            v.invalidate();
         }
     }
 
@@ -100,6 +98,12 @@ import java.lang.ref.WeakReference;
             return v.isAttachedToWindow();
         }
         return v.getParent() != null;   // Best-effort fallback
+    }
+
+    private void cleanupAndComplainAboutUserBeingAFool() {
+        // The textview has been destroyed and teardown() hasn't been called
+        teardown();
+        Log.w("JumpingBeans", "!!! Remember to call JumpingBeans.stopJumping() when appropriate !!!");
     }
 
     /*package*/ void teardown() {
