@@ -59,12 +59,12 @@ public final class JumpingBeans {
      * The rest of the range will be spent in "resting" state.
      * This the "duty cycle" of the jumping animation.
      */
-    public static final float DEFAULT_ANIMATION_DUTY_CYCLE = 0.5f;
+    public static final float DEFAULT_ANIMATION_DUTY_CYCLE = 0.65f;
 
     /**
      * The default duration of a whole jumping animation loop, in milliseconds.
      */
-    public static final int DEFAULT_LOOP_DURATION = 1500;   // ms
+    public static final int DEFAULT_LOOP_DURATION = 1300;   // ms
 
     private final JumpingBeansSpan[] jumpingBeans;
     private final WeakReference<TextView> textView;
