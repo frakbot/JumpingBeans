@@ -63,7 +63,7 @@ import java.lang.ref.WeakReference;
         }
 
         shift = (int) tp.ascent() / 2;
-        jumpAnimator = ValueAnimator.ofInt(0, shift, 0);
+        jumpAnimator = ValueAnimator.ofInt(0, shift);
         jumpAnimator
                 .setDuration(loopDuration)
                 .setStartDelay(delay);
@@ -116,7 +116,7 @@ import java.lang.ref.WeakReference;
      * A tweaked {@link android.view.animation.AccelerateDecelerateInterpolator}
      * that covers the full range in a fraction of its input range, and holds on
      * the final value on the rest of the input range. By default, this fraction
-     * is half of the full range.
+     * is 65% of the full range.
      *
      * @see net.frakbot.jumpingbeans.JumpingBeans#DEFAULT_ANIMATION_DUTY_CYCLE
      */
@@ -130,10 +130,10 @@ import java.lang.ref.WeakReference;
 
         @Override
         public float getInterpolation(float input) {
-            if (input <= animRange) {
-                return (float) (Math.cos((input / animRange + 1) * Math.PI) / 2f) + 0.5f;
-            }
-            return 1.0f;
+            // We want to map the [0, PI] sine range onto [0, animRange]
+            double radians = (input / animRange) * Math.PI;
+            double interpolatedValue = Math.max(0f, Math.sin(radians));
+            return (float) interpolatedValue;
         }
 
     }

@@ -40,15 +40,15 @@ public class MainActivity extends AppCompatActivity {
         // them or, if it's an ellipsis character, replace it with three dots and animate
         // those instead)
         final TextView textView1 = (TextView) findViewById(R.id.jumping_text_1);
-        jumpingBeans1 = new JumpingBeans.Builder()
-                .appendJumpingDots(textView1)
+        jumpingBeans1 = JumpingBeans.with(textView1)
+                .appendJumpingDots()
                 .build();
 
         // Note that, even though we access textView2's text when starting to work on
         // the animation builder, we don't alter it in any way, so we're ok
         final TextView textView2 = (TextView) findViewById(R.id.jumping_text_2);
-        jumpingBeans2 = new JumpingBeans.Builder()
-                .makeTextJump(textView2, 0, textView2.getText().toString().indexOf(' '))
+        jumpingBeans2 = JumpingBeans.with(textView2)
+                .makeTextJump(0, textView2.getText().toString().indexOf(' '))
                 .setIsWave(false)
                 .setLoopDuration(1000)
                 .build();

@@ -59,20 +59,30 @@ public final class JumpingBeans {
      * The rest of the range will be spent in "resting" state.
      * This the "duty cycle" of the jumping animation.
      */
-    public static final float DEFAULT_ANIMATION_DUTY_CYCLE = 0.5f;
+    public static final float DEFAULT_ANIMATION_DUTY_CYCLE = 0.65f;
 
     /**
      * The default duration of a whole jumping animation loop, in milliseconds.
      */
-    public static final int DEFAULT_LOOP_DURATION = 1500;   // ms
+    public static final int DEFAULT_LOOP_DURATION = 1300;   // ms
 
     private final JumpingBeansSpan[] jumpingBeans;
     private final WeakReference<TextView> textView;
 
     private JumpingBeans(@NonNull JumpingBeansSpan[] beans, @NonNull TextView textView) {
-        // Clients will have to use the builder
         this.jumpingBeans = beans;
         this.textView = new WeakReference<>(textView);
+    }
+
+    /**
+     * Create an instance of the {@link net.frakbot.jumpingbeans.JumpingBeans.Builder}
+     * applied to the provided {@code TextView}.
+     *
+     * @param textView The TextView to apply the JumpingBeans to
+     * @return the {@link net.frakbot.jumpingbeans.JumpingBeans.Builder}
+     */
+    public static Builder with(@NonNull TextView textView) {
+        return new Builder(textView);
     }
 
     /**
@@ -118,13 +128,17 @@ public final class JumpingBeans {
      * <p>Example:
      * <p/>
      * <pre class="prettyprint">
-     * JumpingBeans jumpingBeans = new JumpingBeans.Builder()
-     *     .appendJumpingDots(myTextView)
+     * JumpingBeans jumpingBeans = JumpingBeans.with(myTextView)
+     *     .appendJumpingDots()
      *     .setLoopDuration(1500)
      *     .build();
      * </pre>
      */
     public static class Builder {
+
+        public static final String ELLIPSIS_GLYPH = "…";
+        public static final String THREE_DOTS_ELLIPSIS = "...";
+        public static final int THREE_DOTS_ELLIPSIS_LENGTH = 3;
 
         private int startPos, endPos;
         private float animRange = DEFAULT_ANIMATION_DUTY_CYCLE;
@@ -134,42 +148,8 @@ public final class JumpingBeans {
         private TextView textView;
         private boolean wave;
 
-        /**
-         * Appends three jumping dots to the end of a TextView text.
-         * <p/>
-         * This implies that the animation will by default be a wave.
-         * <p/>
-         * If the TextView has no text, the resulting TextView text will
-         * consist of the three dots only.
-         * <p/>
-         * The TextView text is cached to the current value at
-         * this time and set again in the {@link #build()} method, so any
-         * change to the TextView text done in the meantime will be lost.
-         * This means that <b>you should do all changes to the TextView text
-         * <i>before</i> you begin using this builder.</b>
-         * <p/>
-         * Call the {@link #build()} method once you're done to get the
-         * resulting {@link net.frakbot.jumpingbeans.JumpingBeans}.
-         *
-         * @param textView The TextView to append the dots to
-         * @see #setIsWave(boolean)
-         */
-        public Builder appendJumpingDots(@NonNull TextView textView) {
-            CharSequence text = !TextUtils.isEmpty(textView.getText()) ? textView.getText() : "";
-            if (text.length() > 0 && "…".equals(text.subSequence(text.length() - 1, text.length()))) {
-                text = text.subSequence(0, text.length() - 1);
-            }
-
-            if (text.length() < 3 || !TextUtils.equals(text.subSequence(text.length() - 3, text.length()), "...")) {
-                text = new SpannableStringBuilder(text).append("...");  // Preserve spans in original text
-            }
-
-            this.text = text;
-            this.wave = true;
+        /*package*/ Builder(TextView textView) {
             this.textView = textView;
-            this.startPos = this.text.length() - 3;
-            this.endPos = this.text.length();
-            return this;
         }
 
         /**
@@ -189,13 +169,64 @@ public final class JumpingBeans {
          * Call the {@link #build()} method once you're done to get the
          * resulting {@link net.frakbot.jumpingbeans.JumpingBeans}.
          *
-         * @param textView The TextView whose text is to be animated
-         * @param startPos The position of the first character to animate
-         * @param endPos   The position after the one the animated range ends at
-         *                 (just like in String#substring())
          * @see #setIsWave(boolean)
          */
-        public Builder makeTextJump(@NonNull TextView textView, int startPos, int endPos) {
+        public Builder appendJumpingDots() {
+            CharSequence text = getTextSafe(textView);
+            if (text.length() > 0 && endsWithEllipsisGlyph(text)) {
+                text = text.subSequence(0, text.length() - 1);
+            }
+
+            if (!endsWithThreeEllipsisDots(text)) {
+                text = new SpannableStringBuilder(text).append(THREE_DOTS_ELLIPSIS);  // Preserve spans in original text
+            }
+
+            this.text = text;
+            this.wave = true;
+            this.startPos = text.length() - THREE_DOTS_ELLIPSIS_LENGTH;
+            this.endPos = text.length();
+            return this;
+        }
+
+        private static CharSequence getTextSafe(TextView textView) {
+            return !TextUtils.isEmpty(textView.getText()) ? textView.getText() : "";
+        }
+
+        private static boolean endsWithEllipsisGlyph(CharSequence text) {
+            return TextUtils.equals(text.subSequence(text.length() - 1, text.length()), ELLIPSIS_GLYPH);
+        }
+
+        private static boolean endsWithThreeEllipsisDots(@NonNull CharSequence text) {
+            if (text.length() < THREE_DOTS_ELLIPSIS_LENGTH) {
+                // TODO we should try to normalize "invalid" ellipsis (e.g., ".." or "....")
+                return false;
+            }
+            return TextUtils.equals(text.subSequence(text.length() - THREE_DOTS_ELLIPSIS_LENGTH, text.length()), THREE_DOTS_ELLIPSIS);
+        }
+
+        /**
+         * Appends three jumping dots to the end of a TextView text.
+         * <p/>
+         * This implies that the animation will by default be a wave.
+         * <p/>
+         * If the TextView has no text, the resulting TextView text will
+         * consist of the three dots only.
+         * <p/>
+         * The TextView text is cached to the current value at
+         * this time and set again in the {@link #build()} method, so any
+         * change to the TextView text done in the meantime will be lost.
+         * This means that <b>you should do all changes to the TextView text
+         * <i>before</i> you begin using this builder.</b>
+         * <p/>
+         * Call the {@link #build()} method once you're done to get the
+         * resulting {@link net.frakbot.jumpingbeans.JumpingBeans}.
+         *
+         * @param startPos The position of the first character to animate
+         * @param endPos   The position after the one the animated range ends at
+         *                 (just like in {@link String#substring(int)})
+         * @see #setIsWave(boolean)
+         */
+        public Builder makeTextJump(int startPos, int endPos) {
             if (textView.getText() == null) {
                 throw new NullPointerException("The textView text must not be null");
             }
@@ -214,7 +245,6 @@ public final class JumpingBeans {
             }
 
             this.wave = true;
-            this.textView = textView;
             this.startPos = startPos;
             this.endPos = endPos;
             return this;
