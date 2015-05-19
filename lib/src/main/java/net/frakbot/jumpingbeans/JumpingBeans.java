@@ -70,9 +70,19 @@ public final class JumpingBeans {
     private final WeakReference<TextView> textView;
 
     private JumpingBeans(@NonNull JumpingBeansSpan[] beans, @NonNull TextView textView) {
-        // Clients will have to use the builder
         this.jumpingBeans = beans;
         this.textView = new WeakReference<>(textView);
+    }
+
+    /**
+     * Create an instance of the {@link net.frakbot.jumpingbeans.JumpingBeans.Builder}
+     * applied to the provided {@code TextView}.
+     *
+     * @param textView The TextView to apply the JumpingBeans to
+     * @return the {@link net.frakbot.jumpingbeans.JumpingBeans.Builder}
+     */
+    public static Builder with(@NonNull TextView textView) {
+        return new Builder(textView);
     }
 
     /**
@@ -118,8 +128,8 @@ public final class JumpingBeans {
      * <p>Example:
      * <p/>
      * <pre class="prettyprint">
-     * JumpingBeans jumpingBeans = new JumpingBeans.Builder()
-     *     .appendJumpingDots(myTextView)
+     * JumpingBeans jumpingBeans = new JumpingBeans.Builder(myTextView)
+     *     .appendJumpingDots()
      *     .setLoopDuration(1500)
      *     .build();
      * </pre>
@@ -133,6 +143,10 @@ public final class JumpingBeans {
         private CharSequence text;
         private TextView textView;
         private boolean wave;
+
+        /*package*/ Builder(TextView textView) {
+            this.textView = textView;
+        }
 
         /**
          * Appends three jumping dots to the end of a TextView text.
@@ -151,10 +165,9 @@ public final class JumpingBeans {
          * Call the {@link #build()} method once you're done to get the
          * resulting {@link net.frakbot.jumpingbeans.JumpingBeans}.
          *
-         * @param textView The TextView to append the dots to
          * @see #setIsWave(boolean)
          */
-        public Builder appendJumpingDots(@NonNull TextView textView) {
+        public Builder appendJumpingDots() {
             CharSequence text = !TextUtils.isEmpty(textView.getText()) ? textView.getText() : "";
             if (text.length() > 0 && "…".equals(text.subSequence(text.length() - 1, text.length()))) {
                 text = text.subSequence(0, text.length() - 1);
@@ -166,7 +179,6 @@ public final class JumpingBeans {
 
             this.text = text;
             this.wave = true;
-            this.textView = textView;
             this.startPos = this.text.length() - 3;
             this.endPos = this.text.length();
             return this;
@@ -189,13 +201,12 @@ public final class JumpingBeans {
          * Call the {@link #build()} method once you're done to get the
          * resulting {@link net.frakbot.jumpingbeans.JumpingBeans}.
          *
-         * @param textView The TextView whose text is to be animated
          * @param startPos The position of the first character to animate
          * @param endPos   The position after the one the animated range ends at
-         *                 (just like in String#substring())
+         *                 (just like in {@link String#substring(int)})
          * @see #setIsWave(boolean)
          */
-        public Builder makeTextJump(@NonNull TextView textView, int startPos, int endPos) {
+        public Builder makeTextJump(int startPos, int endPos) {
             if (textView.getText() == null) {
                 throw new NullPointerException("The textView text must not be null");
             }
@@ -214,7 +225,6 @@ public final class JumpingBeans {
             }
 
             this.wave = true;
-            this.textView = textView;
             this.startPos = startPos;
             this.endPos = endPos;
             return this;
