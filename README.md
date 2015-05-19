@@ -1,7 +1,7 @@
-JumpingBeans
-============
-
 ![JumpingBeans icon](app/src/main/res/mipmap-xxhdpi/ic_launcher.png)
+
+JumpingBeans [![Download](https://api.bintray.com/packages/frakbot/maven/JumpingBeans/images/download.svg) ](https://bintray.com/frakbot/maven/JumpingBeans/_latestVersion)
+============
 
 The **JumpingBeans** make your test jump to the eye. Literally!
 
