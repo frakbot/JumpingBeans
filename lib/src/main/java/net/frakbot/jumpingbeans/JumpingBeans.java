@@ -66,6 +66,10 @@ public final class JumpingBeans {
      */
     public static final int DEFAULT_LOOP_DURATION = 1300;   // ms
 
+    public static final String ELLIPSIS_GLYPH = "…";
+    public static final String THREE_DOTS_ELLIPSIS = "...";
+    public static final int THREE_DOTS_ELLIPSIS_LENGTH = 3;
+
     private final JumpingBeansSpan[] jumpingBeans;
     private final WeakReference<TextView> textView;
 
@@ -95,17 +99,20 @@ public final class JumpingBeans {
             }
         }
 
-        TextView tv = textView.get();
+        cleanupSpansFrom(textView.get());
+    }
+
+    private static void cleanupSpansFrom(TextView tv) {
         if (tv != null) {
             CharSequence text = tv.getText();
             if (text instanceof Spanned) {
-                CharSequence cleanText = removeJumpingBeansSpans((Spanned) text);
+                CharSequence cleanText = removeJumpingBeansSpansFrom((Spanned) text);
                 tv.setText(cleanText);
             }
         }
     }
 
-    private static CharSequence removeJumpingBeansSpans(Spanned text) {
+    private static CharSequence removeJumpingBeansSpansFrom(Spanned text) {
         SpannableStringBuilder sbb = new SpannableStringBuilder(text.toString());
         Object[] spans = text.getSpans(0, text.length(), Object.class);
         for (Object span : spans) {
@@ -115,6 +122,53 @@ public final class JumpingBeans {
             }
         }
         return sbb;
+    }
+
+    private static CharSequence appendThreeDotsEllipsisTo(TextView textView) {
+        CharSequence text = getTextSafe(textView);
+        if (text.length() > 0 && endsWithEllipsisGlyph(text)) {
+            text = text.subSequence(0, text.length() - 1);
+        }
+
+        if (!endsWithThreeEllipsisDots(text)) {
+            text = new SpannableStringBuilder(text).append(THREE_DOTS_ELLIPSIS);  // Preserve spans in original text
+        }
+        return text;
+    }
+
+    private static CharSequence getTextSafe(TextView textView) {
+        return !TextUtils.isEmpty(textView.getText()) ? textView.getText() : "";
+    }
+
+    private static boolean endsWithEllipsisGlyph(CharSequence text) {
+        return TextUtils.equals(text.subSequence(text.length() - 1, text.length()), ELLIPSIS_GLYPH);
+    }
+
+    private static boolean endsWithThreeEllipsisDots(@NonNull CharSequence text) {
+        if (text.length() < THREE_DOTS_ELLIPSIS_LENGTH) {
+            // TODO we should try to normalize "invalid" ellipsis (e.g., ".." or "....")
+            return false;
+        }
+        return TextUtils.equals(text.subSequence(text.length() - THREE_DOTS_ELLIPSIS_LENGTH, text.length()), THREE_DOTS_ELLIPSIS);
+    }
+
+    private static CharSequence ensureTextCanJump(int startPos, int endPos, CharSequence text) {
+        if (text == null) {
+            throw new NullPointerException("The textView text must not be null");
+        }
+
+        if (endPos < startPos) {
+            throw new IllegalArgumentException("The start position must be smaller than the end position");
+        }
+
+        if (startPos < 0) {
+            throw new IndexOutOfBoundsException("The start position must be non-negative");
+        }
+
+        if (endPos > text.length()) {
+            throw new IndexOutOfBoundsException("The end position must be smaller than the text length");
+        }
+        return text;
     }
 
     /**
@@ -135,10 +189,6 @@ public final class JumpingBeans {
      * </pre>
      */
     public static class Builder {
-
-        public static final String ELLIPSIS_GLYPH = "…";
-        public static final String THREE_DOTS_ELLIPSIS = "...";
-        public static final int THREE_DOTS_ELLIPSIS_LENGTH = 3;
 
         private int startPos, endPos;
         private float animRange = DEFAULT_ANIMATION_DUTY_CYCLE;
@@ -172,36 +222,14 @@ public final class JumpingBeans {
          * @see #setIsWave(boolean)
          */
         public Builder appendJumpingDots() {
-            CharSequence text = getTextSafe(textView);
-            if (text.length() > 0 && endsWithEllipsisGlyph(text)) {
-                text = text.subSequence(0, text.length() - 1);
-            }
-
-            if (!endsWithThreeEllipsisDots(text)) {
-                text = new SpannableStringBuilder(text).append(THREE_DOTS_ELLIPSIS);  // Preserve spans in original text
-            }
+            CharSequence text = appendThreeDotsEllipsisTo(textView);
 
             this.text = text;
             this.wave = true;
             this.startPos = text.length() - THREE_DOTS_ELLIPSIS_LENGTH;
             this.endPos = text.length();
+
             return this;
-        }
-
-        private static CharSequence getTextSafe(TextView textView) {
-            return !TextUtils.isEmpty(textView.getText()) ? textView.getText() : "";
-        }
-
-        private static boolean endsWithEllipsisGlyph(CharSequence text) {
-            return TextUtils.equals(text.subSequence(text.length() - 1, text.length()), ELLIPSIS_GLYPH);
-        }
-
-        private static boolean endsWithThreeEllipsisDots(@NonNull CharSequence text) {
-            if (text.length() < THREE_DOTS_ELLIPSIS_LENGTH) {
-                // TODO we should try to normalize "invalid" ellipsis (e.g., ".." or "....")
-                return false;
-            }
-            return TextUtils.equals(text.subSequence(text.length() - THREE_DOTS_ELLIPSIS_LENGTH, text.length()), THREE_DOTS_ELLIPSIS);
         }
 
         /**
@@ -227,26 +255,14 @@ public final class JumpingBeans {
          * @see #setIsWave(boolean)
          */
         public Builder makeTextJump(int startPos, int endPos) {
-            if (textView.getText() == null) {
-                throw new NullPointerException("The textView text must not be null");
-            }
+            CharSequence text = textView.getText();
+            ensureTextCanJump(startPos, endPos, text);
 
-            if (endPos < startPos) {
-                throw new IllegalArgumentException("The start position must be smaller than the end position");
-            }
-
-            if (startPos < 0) {
-                throw new IndexOutOfBoundsException("The start position must be non-negative");
-            }
-
-            this.text = textView.getText();
-            if (endPos > text.length()) {
-                throw new IndexOutOfBoundsException("The end position must be smaller than the text length");
-            }
-
+            this.text = text;
             this.wave = true;
             this.startPos = startPos;
             this.endPos = endPos;
+
             return this;
         }
 
@@ -327,26 +343,38 @@ public final class JumpingBeans {
          */
         public JumpingBeans build() {
             SpannableStringBuilder sbb = new SpannableStringBuilder(text);
-            JumpingBeansSpan[] jumpingBeans;
+            JumpingBeansSpan[] spans;
             if (wave) {
-                if (waveCharDelay == -1) {
-                    waveCharDelay = loopDuration / (3 * (endPos - startPos));
-                }
-
-                jumpingBeans = new JumpingBeansSpan[endPos - startPos];
-                for (int pos = startPos; pos < endPos; pos++) {
-                    JumpingBeansSpan jumpingBean =
-                            new JumpingBeansSpan(textView, loopDuration, pos - startPos, waveCharDelay, animRange);
-                    sbb.setSpan(jumpingBean, pos, pos + 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-                    jumpingBeans[pos - startPos] = jumpingBean;
-                }
+                spans = getJumpingBeansSpans(sbb);
             } else {
-                jumpingBeans = new JumpingBeansSpan[]{new JumpingBeansSpan(textView, loopDuration, 0, 0, animRange)};
-                sbb.setSpan(jumpingBeans[0], startPos, endPos, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                spans = buildSingleSpan(sbb);
             }
 
             textView.setText(sbb);
-            return new JumpingBeans(jumpingBeans, textView);
+            return new JumpingBeans(spans, textView);
+        }
+
+        private JumpingBeansSpan[] getJumpingBeansSpans(SpannableStringBuilder sbb) {
+            JumpingBeansSpan[] spans;
+            if (waveCharDelay == -1) {
+                waveCharDelay = loopDuration / (3 * (endPos - startPos));
+            }
+
+            spans = new JumpingBeansSpan[endPos - startPos];
+            for (int pos = startPos; pos < endPos; pos++) {
+                JumpingBeansSpan jumpingBean =
+                        new JumpingBeansSpan(textView, loopDuration, pos - startPos, waveCharDelay, animRange);
+                sbb.setSpan(jumpingBean, pos, pos + 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                spans[pos - startPos] = jumpingBean;
+            }
+            return spans;
+        }
+
+        private JumpingBeansSpan[] buildSingleSpan(SpannableStringBuilder sbb) {
+            JumpingBeansSpan[] spans;
+            spans = new JumpingBeansSpan[]{new JumpingBeansSpan(textView, loopDuration, 0, 0, animRange)};
+            sbb.setSpan(spans[0], startPos, endPos, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            return spans;
         }
 
     }
