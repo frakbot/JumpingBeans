@@ -135,9 +135,9 @@ import java.lang.ref.WeakReference;
         @Override
         public float getInterpolation(float input) {
             // We want to map the [0, PI] sine range onto [0, animRange]
+            if (input > animRange) return 0f;
             double radians = (input / animRange) * Math.PI;
-            double interpolatedValue = Math.max(0f, Math.sin(radians));
-            return (float) interpolatedValue;
+            return (float) Math.sin(radians);
         }
 
     }
