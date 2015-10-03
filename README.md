@@ -117,7 +117,10 @@ Please note that you:
  * **Should not** use JumpingBeans on large chunks of text. Ideally this should
    be done on small views with just a few words. We've strived to make it as inexpensive
    as possible to use JumpingBeans but invalidating and possibly relayouting a large
-   TextView can be pretty expensive. 
+   TextView can be pretty expensive.
+ * **Must not** use JumpingBeans in conjunction with code and attrobutes that strip away
+   spans or change them. This includes the
+   [deeply flawed](https://code.google.com/p/android/issues/detail?id=67509) `textAllCaps`.
    
 ## Demo app
 You can find the `JumpingBeans` demo app on the [Google Play Store][1].
