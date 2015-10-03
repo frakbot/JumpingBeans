@@ -195,7 +195,7 @@ public final class JumpingBeans {
         private int loopDuration = DEFAULT_LOOP_DURATION;
         private int waveCharDelay = -1;
         private CharSequence text;
-        private TextView textView;
+        private final TextView textView;
         private boolean wave;
 
         /*package*/ Builder(TextView textView) {
