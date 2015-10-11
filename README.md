@@ -43,7 +43,7 @@ And then just add the JumpingBeans dependency to your module's `build.gradle`:
 
 ```groovy
 dependencies {
-    compile 'net.frakbot:jumpingbeans:1.2.0'
+    compile 'net.frakbot:jumpingbeans:1.3.0'
 }
 ```
 
