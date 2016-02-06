@@ -16,6 +16,8 @@
 
 package net.frakbot.jumpingbeans;
 
+import android.support.annotation.FloatRange;
+import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
@@ -45,7 +47,7 @@ import java.lang.ref.WeakReference;
  * <li><b>Must not</b> use more than one JumpingBeans instance on a single TextView, as
  * the first cleanup operation called on any of these JumpingBeans will also cleanup
  * all other JumpingBeans' stuff. This is most likely not what you want to happen in
- * some cases.</li>
+ * most cases.</li>
  * <li><b>Should not</b> use JumpingBeans on large chunks of text. Ideally this should
  * be done on small views with just a few words. We've strived to make it as inexpensive
  * as possible to use JumpingBeans but invalidating and possibly relayouting a large
@@ -54,21 +56,9 @@ import java.lang.ref.WeakReference;
  */
 public final class JumpingBeans {
 
-    /**
-     * The default fraction of the whole animation time spent actually animating.
-     * The rest of the range will be spent in "resting" state.
-     * This the "duty cycle" of the jumping animation.
-     */
-    public static final float DEFAULT_ANIMATION_DUTY_CYCLE = 0.65f;
-
-    /**
-     * The default duration of a whole jumping animation loop, in milliseconds.
-     */
-    public static final int DEFAULT_LOOP_DURATION = 1300;   // ms
-
-    public static final String ELLIPSIS_GLYPH = "…";
-    public static final String THREE_DOTS_ELLIPSIS = "...";
-    public static final int THREE_DOTS_ELLIPSIS_LENGTH = 3;
+    private static final String ELLIPSIS_GLYPH = "…";
+    private static final String THREE_DOTS_ELLIPSIS = "...";
+    private static final int THREE_DOTS_ELLIPSIS_LENGTH = 3;
 
     private final JumpingBeansSpan[] jumpingBeans;
     private final WeakReference<TextView> textView;
@@ -102,13 +92,15 @@ public final class JumpingBeans {
         cleanupSpansFrom(textView.get());
     }
 
-    private static void cleanupSpansFrom(TextView tv) {
-        if (tv != null) {
-            CharSequence text = tv.getText();
-            if (text instanceof Spanned) {
-                CharSequence cleanText = removeJumpingBeansSpansFrom((Spanned) text);
-                tv.setText(cleanText);
-            }
+    private static void cleanupSpansFrom(TextView textView) {
+        if (textView == null) {
+            return;
+        }
+
+        CharSequence text = textView.getText();
+        if (text instanceof Spanned) {
+            CharSequence cleanText = removeJumpingBeansSpansFrom((Spanned) text);
+            textView.setText(cleanText);
         }
     }
 
@@ -117,58 +109,10 @@ public final class JumpingBeans {
         Object[] spans = text.getSpans(0, text.length(), Object.class);
         for (Object span : spans) {
             if (!(span instanceof JumpingBeansSpan)) {
-                sbb.setSpan(span, text.getSpanStart(span),
-                        text.getSpanEnd(span), text.getSpanFlags(span));
+                sbb.setSpan(span, text.getSpanStart(span), text.getSpanEnd(span), text.getSpanFlags(span));
             }
         }
         return sbb;
-    }
-
-    private static CharSequence appendThreeDotsEllipsisTo(TextView textView) {
-        CharSequence text = getTextSafe(textView);
-        if (text.length() > 0 && endsWithEllipsisGlyph(text)) {
-            text = text.subSequence(0, text.length() - 1);
-        }
-
-        if (!endsWithThreeEllipsisDots(text)) {
-            text = new SpannableStringBuilder(text).append(THREE_DOTS_ELLIPSIS);  // Preserve spans in original text
-        }
-        return text;
-    }
-
-    private static CharSequence getTextSafe(TextView textView) {
-        return !TextUtils.isEmpty(textView.getText()) ? textView.getText() : "";
-    }
-
-    private static boolean endsWithEllipsisGlyph(CharSequence text) {
-        return TextUtils.equals(text.subSequence(text.length() - 1, text.length()), ELLIPSIS_GLYPH);
-    }
-
-    private static boolean endsWithThreeEllipsisDots(@NonNull CharSequence text) {
-        if (text.length() < THREE_DOTS_ELLIPSIS_LENGTH) {
-            // TODO we should try to normalize "invalid" ellipsis (e.g., ".." or "....")
-            return false;
-        }
-        return TextUtils.equals(text.subSequence(text.length() - THREE_DOTS_ELLIPSIS_LENGTH, text.length()), THREE_DOTS_ELLIPSIS);
-    }
-
-    private static CharSequence ensureTextCanJump(int startPos, int endPos, CharSequence text) {
-        if (text == null) {
-            throw new NullPointerException("The textView text must not be null");
-        }
-
-        if (endPos < startPos) {
-            throw new IllegalArgumentException("The start position must be smaller than the end position");
-        }
-
-        if (startPos < 0) {
-            throw new IndexOutOfBoundsException("The start position must be non-negative");
-        }
-
-        if (endPos > text.length()) {
-            throw new IndexOutOfBoundsException("The end position must be smaller than the text length");
-        }
-        return text;
     }
 
     /**
@@ -183,22 +127,31 @@ public final class JumpingBeans {
      * <p/>
      * <pre class="prettyprint">
      * JumpingBeans jumpingBeans = JumpingBeans.with(myTextView)
-     *     .appendJumpingDots()
-     *     .setLoopDuration(1500)
-     *     .build();
+     *   .appendJumpingDots()
+     *   .setLoopDuration(1500)
+     *   .build();
      * </pre>
+     *
+     * @see JumpingBeans#with(TextView)
      */
     public static class Builder {
 
-        private int startPos, endPos;
+        private static final float DEFAULT_ANIMATION_DUTY_CYCLE = 0.65f;
+        private static final int DEFAULT_LOOP_DURATION = 1300;   // ms
+        private static final int DEFAULT_WAVE_CHAR_DELAY = -1;
+
+        private final TextView textView;
+
+        private int startPos;
+        private int endPos;
+
         private float animRange = DEFAULT_ANIMATION_DUTY_CYCLE;
         private int loopDuration = DEFAULT_LOOP_DURATION;
-        private int waveCharDelay = -1;
+        private int waveCharDelay = DEFAULT_WAVE_CHAR_DELAY;
         private CharSequence text;
-        private final TextView textView;
         private boolean wave;
 
-        /*package*/ Builder(TextView textView) {
+        Builder(TextView textView) {
             this.textView = textView;
         }
 
@@ -221,6 +174,7 @@ public final class JumpingBeans {
          *
          * @see #setIsWave(boolean)
          */
+        @NonNull
         public Builder appendJumpingDots() {
             CharSequence text = appendThreeDotsEllipsisTo(textView);
 
@@ -230,6 +184,37 @@ public final class JumpingBeans {
             this.endPos = text.length();
 
             return this;
+        }
+
+        private static CharSequence appendThreeDotsEllipsisTo(TextView textView) {
+            CharSequence text = getTextSafe(textView);
+            if (text.length() > 0 && endsWithEllipsisGlyph(text)) {
+                text = text.subSequence(0, text.length() - 1);
+            }
+
+            if (!endsWithThreeEllipsisDots(text)) {
+                text = new SpannableStringBuilder(text).append(THREE_DOTS_ELLIPSIS);  // Preserve spans in original text
+            }
+            return text;
+        }
+
+        private static CharSequence getTextSafe(TextView textView) {
+            return !TextUtils.isEmpty(textView.getText()) ? textView.getText() : "";
+        }
+
+        private static boolean endsWithEllipsisGlyph(CharSequence text) {
+            CharSequence lastChar = text.subSequence(text.length() - 1, text.length());
+            return ELLIPSIS_GLYPH.equals(lastChar);
+        }
+
+        @SuppressWarnings("SimplifiableIfStatement")                 // For readability
+        private static boolean endsWithThreeEllipsisDots(CharSequence text) {
+            if (text.length() < THREE_DOTS_ELLIPSIS_LENGTH) {
+                // TODO we should try to normalize "invalid" ellipsis (e.g., ".." or "....")
+                return false;
+            }
+            CharSequence lastThreeChars = text.subSequence(text.length() - THREE_DOTS_ELLIPSIS_LENGTH, text.length());
+            return THREE_DOTS_ELLIPSIS.equals(lastThreeChars);
         }
 
         /**
@@ -254,7 +239,8 @@ public final class JumpingBeans {
          *                 (just like in {@link String#substring(int)})
          * @see #setIsWave(boolean)
          */
-        public Builder makeTextJump(int startPos, int endPos) {
+        @NonNull
+        public Builder makeTextJump(@IntRange(from = 0) int startPos, @IntRange(from = 0) int endPos) {
             CharSequence text = textView.getText();
             ensureTextCanJump(startPos, endPos, text);
 
@@ -266,16 +252,34 @@ public final class JumpingBeans {
             return this;
         }
 
+        private static CharSequence ensureTextCanJump(int startPos, int endPos, CharSequence text) {
+            if (text == null) {
+                throw new NullPointerException("The textView text must not be null");
+            }
+
+            if (endPos < startPos) {
+                throw new IllegalArgumentException("The start position must be smaller than the end position");
+            }
+
+            if (startPos < 0) {
+                throw new IndexOutOfBoundsException("The start position must be non-negative");
+            }
+
+            if (endPos > text.length()) {
+                throw new IndexOutOfBoundsException("The end position must be smaller than the text length");
+            }
+            return text;
+        }
+
         /**
          * Sets the fraction of the animation loop time spent actually animating.
          * The rest of the time will be spent "resting".
-         * The default value is
-         * {@link net.frakbot.jumpingbeans.JumpingBeans#DEFAULT_ANIMATION_DUTY_CYCLE}.
          *
          * @param animatedRange The fraction of the animation loop time spent
          *                      actually animating the characters
          */
-        public Builder setAnimatedDutyCycle(float animatedRange) {
+        @NonNull
+        public Builder setAnimatedDutyCycle(@FloatRange(from = 0f, to = 1f, fromInclusive = false) float animatedRange) {
             if (animatedRange <= 0f || animatedRange > 1f) {
                 throw new IllegalArgumentException("The animated range must be in the (0, 1] range");
             }
@@ -284,12 +288,12 @@ public final class JumpingBeans {
         }
 
         /**
-         * Sets the jumping loop duration. The default value is
-         * {@link net.frakbot.jumpingbeans.JumpingBeans#DEFAULT_LOOP_DURATION}.
+         * Sets the jumping loop duration.
          *
          * @param loopDuration The jumping animation loop duration, in milliseconds
          */
-        public Builder setLoopDuration(int loopDuration) {
+        @NonNull
+        public Builder setLoopDuration(@IntRange(from = 1) int loopDuration) {
             if (loopDuration < 1) {
                 throw new IllegalArgumentException("The loop duration must be bigger than zero");
             }
@@ -309,7 +313,8 @@ public final class JumpingBeans {
          *                       character over the previous one, in milliseconds
          * @see #setIsWave(boolean)
          */
-        public Builder setWavePerCharDelay(int waveCharOffset) {
+        @NonNull
+        public Builder setWavePerCharDelay(@IntRange(from = 0) int waveCharOffset) {
             if (waveCharOffset < 0) {
                 throw new IllegalArgumentException("The wave char offset must be non-negative");
             }
@@ -326,6 +331,7 @@ public final class JumpingBeans {
          *             false, all characters will jump ay the same time
          * @see #setWavePerCharDelay(int)
          */
+        @NonNull
         public Builder setIsWave(boolean wave) {
             this.wave = wave;
             return this;
@@ -341,11 +347,12 @@ public final class JumpingBeans {
          * the paused status). This will allow to release the animations and
          * free up memory and CPU that would be otherwise wasted.
          */
+        @NonNull
         public JumpingBeans build() {
             SpannableStringBuilder sbb = new SpannableStringBuilder(text);
             JumpingBeansSpan[] spans;
             if (wave) {
-                spans = getJumpingBeansSpans(sbb);
+                spans = buildWavingSpans(sbb);
             } else {
                 spans = buildSingleSpan(sbb);
             }
@@ -354,9 +361,9 @@ public final class JumpingBeans {
             return new JumpingBeans(spans, textView);
         }
 
-        private JumpingBeansSpan[] getJumpingBeansSpans(SpannableStringBuilder sbb) {
+        private JumpingBeansSpan[] buildWavingSpans(SpannableStringBuilder sbb) {
             JumpingBeansSpan[] spans;
-            if (waveCharDelay == -1) {
+            if (waveCharDelay == DEFAULT_WAVE_CHAR_DELAY) {
                 waveCharDelay = loopDuration / (3 * (endPos - startPos));
             }
 
