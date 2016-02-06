@@ -19,6 +19,8 @@ package net.frakbot.jumpingbeans;
 import android.animation.TimeInterpolator;
 import android.animation.ValueAnimator;
 import android.os.Build;
+import android.support.annotation.FloatRange;
+import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
 import android.text.TextPaint;
 import android.text.style.SuperscriptSpan;
@@ -28,7 +30,7 @@ import android.widget.TextView;
 
 import java.lang.ref.WeakReference;
 
-/*package*/ final class JumpingBeansSpan extends SuperscriptSpan implements ValueAnimator.AnimatorUpdateListener {
+final class JumpingBeansSpan extends SuperscriptSpan implements ValueAnimator.AnimatorUpdateListener {
 
     private final WeakReference<TextView> textView;
     private final int delay;
@@ -37,8 +39,11 @@ import java.lang.ref.WeakReference;
     private int shift;
     private ValueAnimator jumpAnimator;
 
-    public JumpingBeansSpan(@NonNull TextView textView, int loopDuration, int position, int waveCharOffset,
-                            float animatedRange) {
+    public JumpingBeansSpan(@NonNull TextView textView,
+                            @IntRange(from = 1) int loopDuration,
+                            @IntRange(from = 0) int position,
+                            @IntRange(from = 0) int waveCharOffset,
+                            @FloatRange(from = 0, to = 1, fromInclusive = false) float animatedRange) {
         this.textView = new WeakReference<>(textView);
         this.delay = waveCharOffset * position;
         this.loopDuration = loopDuration;
@@ -46,13 +51,13 @@ import java.lang.ref.WeakReference;
     }
 
     @Override
-    public void updateMeasureState(@NonNull TextPaint tp) {
+    public void updateMeasureState(TextPaint tp) {
         initIfNecessary(tp.ascent());
         tp.baselineShift = shift;
     }
 
     @Override
-    public void updateDrawState(@NonNull TextPaint tp) {
+    public void updateDrawState(TextPaint tp) {
         initIfNecessary(tp.ascent());
         tp.baselineShift = shift;
     }
@@ -77,7 +82,7 @@ import java.lang.ref.WeakReference;
 
     @Override
     public void onAnimationUpdate(ValueAnimator animation) {
-        // No need for synchronization as this always run on main thread anyway
+        // No need for synchronization as this always runs on main thread anyway
         TextView v = textView.get();
         if (v != null) {
             updateAnimationFor(animation, v);
@@ -86,7 +91,7 @@ import java.lang.ref.WeakReference;
         }
     }
 
-    private void updateAnimationFor(@NonNull ValueAnimator animation, @NonNull TextView v) {
+    private void updateAnimationFor(ValueAnimator animation, TextView v) {
         if (isAttachedToHierarchy(v)) {
             shift = (int) animation.getAnimatedValue();
             v.invalidate();
@@ -97,7 +102,7 @@ import java.lang.ref.WeakReference;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             return v.isAttachedToWindow();
         }
-        return v.getParent() != null;   // Best-effort fallback
+        return v.getParent() != null;   // Best-effort fallback (without adding support-v4 just for this...)
     }
 
     private void cleanupAndComplainAboutUserBeingAFool() {
@@ -106,7 +111,7 @@ import java.lang.ref.WeakReference;
         Log.w("JumpingBeans", "!!! Remember to call JumpingBeans.stopJumping() when appropriate !!!");
     }
 
-    /*package*/ void teardown() {
+    public void teardown() {
         if (jumpAnimator != null) {
             jumpAnimator.cancel();
             jumpAnimator.removeAllListeners();
@@ -122,7 +127,7 @@ import java.lang.ref.WeakReference;
      * the final value on the rest of the input range. By default, this fraction
      * is 65% of the full range.
      *
-     * @see net.frakbot.jumpingbeans.JumpingBeans#DEFAULT_ANIMATION_DUTY_CYCLE
+     * @see JumpingBeans.Builder#DEFAULT_ANIMATION_DUTY_CYCLE
      */
     private static class JumpInterpolator implements TimeInterpolator {
 
@@ -135,7 +140,9 @@ import java.lang.ref.WeakReference;
         @Override
         public float getInterpolation(float input) {
             // We want to map the [0, PI] sine range onto [0, animRange]
-            if (input > animRange) return 0f;
+            if (input > animRange) {
+                return 0f;
+            }
             double radians = (input / animRange) * Math.PI;
             return (float) Math.sin(radians);
         }
