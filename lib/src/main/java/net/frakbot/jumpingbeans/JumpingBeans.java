@@ -361,6 +361,7 @@ public final class JumpingBeans {
             return new JumpingBeans(spans, textView);
         }
 
+        @SuppressWarnings("Range")          // Lint bug: the if makes sure waveCharDelay >= 0
         private JumpingBeansSpan[] buildWavingSpans(SpannableStringBuilder sbb) {
             JumpingBeansSpan[] spans;
             if (waveCharDelay == DEFAULT_WAVE_CHAR_DELAY) {
